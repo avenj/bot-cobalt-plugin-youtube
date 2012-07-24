@@ -48,6 +48,8 @@ sub Bot_public_msg {
   if (my ($id) = $msg->stripped =~ $self->[REGEX]) {
     my $req_url = "http://www.youtube.com/" . uri_escape($id) ;
 
+    logger->debug("dispatching request to $req_url");
+
     my $request = HTTP::Request->new(
       GET => $req_url,
     );
@@ -68,6 +70,8 @@ sub Bot_youtube_plug_resp_recv {
   my $response = ${ $_[1] };
   my $args     = ${ $_[2] };
   my ($req_url, $msg) = @$args;
+
+  logger->debug("youtube_plug_resp_recv for $req_url");
 
   return PLUGIN_EAT_ALL unless $response->is_success;
 
