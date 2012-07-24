@@ -106,6 +106,27 @@ sub Bot_youtube_plug_resp_recv {
   PLUGIN_EAT_ALL
 }
 
-
-
 1
+
+=pod
+
+=head1 NAME
+
+Bot::Cobalt::Plugin::YouTube - YouTube plugin for Bot::Cobalt
+
+=head1 SYNOPSIS
+
+  !plugin load YT Bot::Cobalt::Plugin::YouTube
+
+=head1 DESCRIPTION
+
+A L<Bot::Cobalt> plugin.
+
+Retrieves YouTube links pasted to an IRC channel and reports titles 
+(as well as shorter urls) to IRC.
+
+=head1 AUTHOR
+
+Jon Portnoy <avenj@cobaltirc.org>
+
+=cut
