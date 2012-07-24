@@ -1,5 +1,5 @@
 package Bot::Cobalt::Plugin::YouTube;
-our $VERSION = '0.001';
+our $VERSION = '0.001_01';
 
 use Bot::Cobalt;
 use Bot::Cobalt::Common;
@@ -16,7 +16,7 @@ sub REGEX { 0 }
 
 sub new { 
   bless [
-    qr{youtube\.com/(\S+)},  ## REGEX
+    qr{youtube\.com/(\S+)},  ## ->[REGEX]
   ], shift
 }
 
