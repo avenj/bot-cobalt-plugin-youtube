@@ -77,7 +77,6 @@ sub Bot_youtube_plug_resp_recv {
 
   my ($title, $short_url);
 
-  ## Try to grab the meta title.
   while (my $tok = $html->get_tag('meta', 'link') ) {
     my $args = ref $tok->[1] eq 'HASH' ? $tok->[1] : next ;
     
