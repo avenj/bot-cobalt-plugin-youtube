@@ -1,5 +1,5 @@
 package Bot::Cobalt::Plugin::YouTube;
-our $VERSION = '0.001_01';
+our $VERSION = '0.002';
 
 use Bot::Cobalt;
 use Bot::Cobalt::Common;
@@ -145,6 +145,8 @@ A L<Bot::Cobalt> plugin.
 
 Retrieves YouTube links pasted to an IRC channel and reports titles 
 (as well as shorter urls) to IRC.
+
+Operates on both 'youtube.com' and 'youtu.be' links.
 
 =head1 AUTHOR
 
