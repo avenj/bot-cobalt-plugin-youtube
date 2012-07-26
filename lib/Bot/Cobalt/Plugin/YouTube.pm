@@ -12,7 +12,7 @@ use HTTP::Request;
 
 use URI::Escape;
 
-sub REGEX { 0 }
+sub REGEX () { 0 }
 
 sub new { 
   bless [
@@ -46,6 +46,12 @@ sub Bot_public_msg {
   my $msg = ${ $_[0] };
 
   if (my ($id) = $msg->stripped =~ $self->[REGEX]) {
+    unless (core()->Provided->{www_request}) {
+      logger->warn(
+        "We appear to be missing Bot::Cobalt::Plugin::WWW; ",
+        "it may not be possible to issue async HTTP requests."
+    }
+
     my $req_url = "http://www.youtube.com/" . uri_escape($id) ;
 
     logger->debug("dispatching request to $req_url");
