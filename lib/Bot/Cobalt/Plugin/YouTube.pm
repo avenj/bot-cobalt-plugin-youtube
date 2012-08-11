@@ -1,5 +1,5 @@
 package Bot::Cobalt::Plugin::YouTube;
-our $VERSION = '0.002';
+our $VERSION = '0.002_01';
 
 use Bot::Cobalt;
 use Bot::Cobalt::Common;
@@ -67,10 +67,6 @@ sub Bot_public_msg {
 
     logger->debug("dispatching request to $req_url");
 
-    my $request = HTTP::Request->new(
-      GET => $req_url,
-    );
-    
     broadcast( 'www_request',
       HTTP::Request->new( GET => $req_url ),
       'youtube_plug_resp_recv',
