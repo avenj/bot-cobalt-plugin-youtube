@@ -62,6 +62,10 @@ sub Bot_public_msg {
         "it may not be possible to issue async HTTP requests."
       );
     }
+
+    my $chcfg = $core->get_channels_cfg( $msg->context );
+    my $this_chcfg = $chcfg->{ $msg->channel } // {};
+    return PLUGIN_EAT_NONE if $this_chcfg->{no_yt_retrieve};
     
     my $req_url = $self->_create_yt_link($base, $id);
 
