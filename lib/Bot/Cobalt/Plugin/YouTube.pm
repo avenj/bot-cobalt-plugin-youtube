@@ -14,7 +14,7 @@ use URI::Escape;
 
 sub REGEX () { 0 }
 
-sub new { 
+sub new {
   bless [
     qr{(youtu\.be|youtube\.com)/(\S+)},  ## ->[REGEX]
   ], shift
@@ -29,7 +29,7 @@ sub Cobalt_register {
   / );
 
   logger->info("YouTube plugin registered ($VERSION)");
-  
+
   PLUGIN_EAT_NONE
 }
 
@@ -37,7 +37,7 @@ sub Cobalt_unregister {
   my ($self, $core) = @_;
 
   logger->info("YouTube plugin unregistered.");
-  
+
   PLUGIN_EAT_NONE
 }
 
@@ -66,7 +66,7 @@ sub Bot_public_msg {
     my $chcfg = $core->get_channels_cfg( $msg->context );
     my $this_chcfg = $chcfg->{ $msg->channel } // {};
     return PLUGIN_EAT_NONE if $this_chcfg->{no_yt_retrieve};
-    
+
     my $req_url = $self->_create_yt_link($base, $id);
 
     logger->debug("dispatching request to $req_url");
@@ -78,7 +78,7 @@ sub Bot_public_msg {
     );
   }
 
-  PLUGIN_EAT_NONE  
+  PLUGIN_EAT_NONE
 }
 
 sub Bot_youtube_plug_resp_recv {
@@ -98,20 +98,24 @@ sub Bot_youtube_plug_resp_recv {
 
   my ($title, $short_url);
 
-  while (my $tok = $html->get_tag('meta', 'link') ) {
-    my $args = ref $tok->[1] eq 'HASH' ? $tok->[1] : next ;
-    
+  TAG: while (my $tok = $html->get_tag('meta', 'link') ) {
+    my $args = ref $tok->[1] eq 'HASH' ? $tok->[1] : next TAG ;
+
     if (defined $args->{name} && $args->{name} eq 'title') {
       $title = $args->{content}
     }
-    
+
     if (defined $args->{rel} && $args->{rel} eq 'shortlink') {
       $short_url = $args->{href}
+    }
+
+    if (defined $title && defined $short_url) {
+      last TAG
     }
   }
 
   if (defined $title && $short_url) {
-    my $irc_resp = 
+    my $irc_resp =
       color('bold', 'YouTube:')
       . " $title ( $short_url )" ;
 
@@ -143,7 +147,7 @@ Bot::Cobalt::Plugin::YouTube - YouTube plugin for Bot::Cobalt
 
 A L<Bot::Cobalt> plugin.
 
-Retrieves YouTube links pasted to an IRC channel and reports titles 
+Retrieves YouTube links pasted to an IRC channel and reports titles
 (as well as shorter urls) to IRC.
 
 Operates on both 'youtube.com' and 'youtu.be' links.
