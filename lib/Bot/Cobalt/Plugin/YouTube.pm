@@ -1,5 +1,5 @@
 package Bot::Cobalt::Plugin::YouTube;
-our $VERSION = '0.002_01';
+our $VERSION = '0.003000';
 
 use Bot::Cobalt;
 use Bot::Cobalt::Common;
@@ -25,6 +25,7 @@ sub Cobalt_register {
 
   register( $self, 'SERVER', qw/
     public_msg
+    ctcp_action
     youtube_plug_resp_recv
   / );
 
@@ -49,6 +50,33 @@ sub _create_yt_link {
       . uri_escape($id)
 }
 
+sub _issue_yt_request {
+  my ($self, $msg, $base, $id) = @_;
+
+  unless (core()->Provided->{www_request}) {
+    logger->warn(
+      "We appear to be missing Bot::Cobalt::Plugin::WWW; ",
+      "it may not be possible to issue async HTTP requests."
+    );
+  }
+
+  my $chcfg = core->get_channels_cfg( $msg->context );
+  my $this_chcfg = $chcfg->{ $msg->channel } // {};
+  return if $this_chcfg->{no_yt_retrieve};
+
+  my $req_url = $self->_create_yt_link($base, $id);
+
+  logger->debug("dispatching request to $req_url");
+
+  broadcast( 'www_request',
+    HTTP::Request->new( GET => $req_url ),
+    'youtube_plug_resp_recv',
+    [ $req_url, $msg ],
+  );
+
+  1
+}
+
 sub Bot_public_msg {
   my ($self, $core) = splice @_, 0, 2;
   my $msg = ${ $_[0] };
@@ -56,26 +84,22 @@ sub Bot_public_msg {
   my ($base, $id) = $msg->stripped =~ $self->[REGEX] ;
 
   if ($base && defined $id) {
-    unless (core()->Provided->{www_request}) {
-      logger->warn(
-        "We appear to be missing Bot::Cobalt::Plugin::WWW; ",
-        "it may not be possible to issue async HTTP requests."
-      );
-    }
+    $self->_issue_yt_request($msg, $base, $id)
+  }
 
-    my $chcfg = $core->get_channels_cfg( $msg->context );
-    my $this_chcfg = $chcfg->{ $msg->channel } // {};
-    return PLUGIN_EAT_NONE if $this_chcfg->{no_yt_retrieve};
+  PLUGIN_EAT_NONE
+}
 
-    my $req_url = $self->_create_yt_link($base, $id);
+sub Bot_ctcp_action {
+  my ($self, $core) = splice @_, 0, 2;
+  my $msg = ${ $_[0] };
 
-    logger->debug("dispatching request to $req_url");
+  return PLUGIN_EAT_NONE unless $msg->channel;
 
-    broadcast( 'www_request',
-      HTTP::Request->new( GET => $req_url ),
-      'youtube_plug_resp_recv',
-      [ $req_url, $msg ],
-    );
+  my ($base, $id) = $msg->stripped =~ $self->[REGEX];
+
+  if ($base && defined $id) {
+    $self->_issue_yt_request($msg, $base, $id) 
   }
 
   PLUGIN_EAT_NONE
@@ -151,6 +175,8 @@ Retrieves YouTube links pasted to an IRC channel and reports titles
 (as well as shorter urls) to IRC.
 
 Operates on both 'youtube.com' and 'youtu.be' links.
+
+Disregards channels with a 'no_yt_retrieve' flag enabled.
 
 =head1 AUTHOR
 
