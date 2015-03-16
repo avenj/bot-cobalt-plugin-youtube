@@ -1,16 +1,12 @@
 package Bot::Cobalt::Plugin::YouTube;
-our $VERSION = '0.003000';
 
 use Bot::Cobalt;
 use Bot::Cobalt::Common;
 
-use strictures 1;
+use strictures 2;
 
 use HTML::TokeParser;
-
 use HTTP::Request;
-
-use URI::Escape;
 
 sub REGEX () { 0 }
 
@@ -29,25 +25,22 @@ sub Cobalt_register {
     youtube_plug_resp_recv
   / );
 
-  logger->info("YouTube plugin registered ($VERSION)");
+  logger->info("YouTube plugin registered");
 
   PLUGIN_EAT_NONE
 }
 
 sub Cobalt_unregister {
   my ($self, $core) = @_;
-
   logger->info("YouTube plugin unregistered.");
-
   PLUGIN_EAT_NONE
 }
 
 sub _create_yt_link {
   my ($self, $base, $id) = @_;
-
-  "http://www.youtube.com/"
-      . ($base eq "youtu.be" ? "watch?v=" : "")
-      . uri_escape($id)
+  'http://www.youtube.com/'
+      . ($base eq 'youtu.be' ? 'watch?v=' : '')
+      . $id
 }
 
 sub _issue_yt_request {
